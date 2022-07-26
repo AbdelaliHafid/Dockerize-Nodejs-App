@@ -11,10 +11,10 @@ const path = require('path');
 
 const connection = mysql.createPool({
 	connectionLimit: 10,
-	host: process.env.MYSQL_HOST || "mysqldb",
-	user: process.env.MYSQL_USER || "root",
-	password: process.env.MYSQL_PASSWORD || "123456",
-	//database: process.env.MYSQL_DATABASE || "nodelogin",
+	host: "mysqldb",
+	user: "root",
+	password: "123456",
+	database: "nodelogin__"
   });
 
 const app = express();
@@ -41,6 +41,12 @@ app.get('/', function(request, response) {
 app.get('/register', function(request, response) {
 	// Render login template
 	response.sendFile(path.join(__dirname + '/register.html'));
+});
+
+// http://localhost:3000/style.css
+app.get('/style.css', function(request, response) {
+	// Render login template
+	response.sendFile(path.join(__dirname + '/static/style.css'));
 });
 
 // http://localhost:3000/login.html
@@ -160,4 +166,39 @@ app.get('/home', function(request, response) {
 	response.end();
 });
 
-app.listen(3000, () => console.log("listining on port 3000"));
+app.listen(3000, function()  {
+
+
+
+	connection.query('CREATE DATABASE IF NOT EXISTS `nodelogin`', function (err, result) {
+		if (err){
+			console.log("Creation failed");
+			throw err;
+		}
+		console.log("Database created");
+	  });
+	connection.query('USE nodelogin',function(err,result){
+		if (err){
+			console.log("Selection failed");
+			throw err;
+		}
+		console.log("Database selected");
+	  });
+
+
+	  var sql = 'CREATE TABLE IF NOT EXISTS `accounts` (`id` int(11) NOT NULL AUTO_INCREMENT,`username` varchar(50) NOT NULL,`password` varchar(255) NOT NULL,`email` varchar(100) NOT NULL,PRIMARY KEY (`id`)) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8';
+	 connection.query(sql, function (err, result) {
+		if (err){
+			console.log("Table creation failed");
+			throw err;
+		}
+	  console.log("Table created");
+	 });
+
+
+
+
+	console.log("listining on port 3000")
+	
+}
+);
