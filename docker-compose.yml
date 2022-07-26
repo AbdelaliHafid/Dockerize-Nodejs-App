@@ -2,10 +2,10 @@ version: "3.8"
 services:
   mysqldb:
     image: mysql:5.7
-    restart: unless-stopped
+    restart: always
     env_file: ./.env
     environment:
-      - MYSQL_ROOT_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      MYSQL_ROOT_PASSWORD: 123456
     ports:
       - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
     
@@ -14,10 +14,11 @@ services:
     build: ./web
     environment:
       MYSQL_USER: root
-      MYSQL_PASSWORD: password
+      MYSQL_PASSWORD: 123456
       MYSQL_HOST: mysqldb
     ports:
       - "3000:3000"
     depends_on:
       - mysqldb
+    stdin_open: true  
     restart: on-failure
