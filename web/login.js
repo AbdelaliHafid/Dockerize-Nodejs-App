@@ -3,7 +3,10 @@ const mysql = require('mysql');
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
- 
+const helmet = require('helmet');
+const xssClean = require('xss-clean');
+const hpp = require('hpp');
+
 
 
 
@@ -14,10 +17,16 @@ const connection = mysql.createPool({
 	host: "mysqldb",
 	user: "root",
 	password: "123456",
-	database: "nodelogin__"
+	database: "nodelogin"
   });
 
 const app = express();
+
+app.use(helmet());
+app.use(xssClean());
+app.use(hpp());
+
+
 
 app.use(session({
 	secret: 'secret',
@@ -63,6 +72,11 @@ app.post('/auth', function(request, response) {
 	let username = request.body.username;
 	let password = request.body.password;
 	// Ensure the input fields exists and are not empty
+	connection.query('USE nodelogin',function(err,result){
+			
+		if (err) throw err;
+		console.log("Database selected");
+	  });
 	if (username && password) {
 		// Execute SQL query that'll select the account from the database based on the specified username and password
 		connection.query('SELECT * FROM accounts WHERE username = ? AND password = ?', [username, password], function(error, results, fields) {
