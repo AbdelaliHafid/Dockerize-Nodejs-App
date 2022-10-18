@@ -5,7 +5,7 @@ Zu den in diesem Projekt verwendeten Technologien gehört als erstes das Betrieb
 
 Node.js ist eine Open-Source-JavaScript runtime environment, die JavaScript-Code außerhalb eines Webbrowsers ausführt.
 
-Die hier verwendete Version Node.js : v12.2.0. npm ist ein Paketmanager für Node.js mit hunderttausenden von Paketen. Dieses Projekt verwendet die Version 6.9.0.
+Die hier verwendete Version Node.js : v12.2.0. npm ist ein Paketmanager für Node.js mit hundert tausenden von Paketen. Dieses Projekt verwendet die Version 6.9.0.
 
 Als nächstes kommen die Pakete, die mit npm installiert werden. express(4.18.1) für Nodejs ist ein schnelles, minimalistisches Web-Framework.
 
