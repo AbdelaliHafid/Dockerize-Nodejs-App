@@ -168,7 +168,7 @@ Diese Dockerdatei enthält alle Befehle zur Erstellung die neuen Containers. Zun
 
  EXPOSE 3000
 
- ENTRYPOINT ["./ login "]
+ ENTRYPOINT ["./login "]
 
 
 ```
