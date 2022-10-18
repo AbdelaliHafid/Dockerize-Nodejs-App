@@ -1,92 +1,397 @@
-# NodeJs_Docker_MySQL
+# Wie kann man node.js-Lösungen bei Kunden installieren, ohne dass die den Source-Code sehen können?
 
-Dockerized Nodejs web app using MySQL database.
+## Verwendete Werkzeuge
+Zu den in diesem Projekt verwendeten Technologien gehört als erstes das Betriebssystem, das Ubuntu 22.04 LTS ist. Die Verwendung von Ubuntu ist wichtig, weil es sich um eine Open-Source-Software handelt, bei der die Benutzer den Code nach Belieben einsehen und ändern können. Das macht es für Hacker schwieriger, Schwachstellen in LinuxSystemen auszunutzen.
 
-## Getting started
+Node.js ist eine Open-Source-JavaScript runtime environment, die JavaScript-Code außerhalb eines Webbrowsers ausführt.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Die hier verwendete Version Node.js : v12.2.0. npm ist ein Paketmanager für Node.js mit hunderttausenden von Paketen. Dieses Projekt verwendet die Version 6.9.0.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Als nächstes kommen die Pakete, die mit npm installiert werden. express(4.18.1) für Nodejs ist ein schnelles, minimalistisches Web-Framework.
 
-## Add your files
+Und für die Nutzung von Sessions wird natürlich das Paket express-session(4.18.1) benötigt.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+Dotenv (16.0.1) ist ein abhängigkeitsfreies Modul, das Umgebungsvariablen aus einer .env-Datei in process.env lädt.
+
+pkg (5.7.0) ist ein Ein-Befehl-Nodejs-Binär-Compiler, der für die Verwendung in Containern erstellt wurde und nicht für die Verwendung in serverlosen Umgebungen gedacht ist.
+
+Um die MySQL-Datenbank zu verwalten, wird mysql (2.18.1) ebenfalls benötigt. Und schließlich wird für die Verwaltung der Container und Images eine kompatible Version von Docker (Docker Version 20.10.12, Build 20.10.12-0ubuntu4) benötigt.
+
+## Einrichtung und Installation
+
+### Erstellung der Nodejs-App
+
+Node und andere Module sollten mit den folgenden Befehlen installiert werden:
+Nodejs mit dem Befehl installieren:
+
+```bash 
+sudo apt install nodejs
+```
+In diesem Projekt spielt die Version von Node keine Rolle.
+
+* npm - Installieren mit dem Befehl :
+```cmd 
+apt install npm
+```
+
+* mysql - Installieren mit dem Befehl :
+```cmd 
+npm install mysql -- save .
+```
+
+* Express Sessions - Installieren mit dem Befehl :
+```cmd 
+npm install express - session -- save .
+```
+
+*  Express - Installieren mit dem Befehl :
+```cmd 
+npm install express -- save .
+```
+
+* Dotenv - Installieren mit dem Befehl :
+```cmd 
+npm install dotenv -- save
+```
+
+* pkg - Installieren mit dem Befehl :
+```cmd 
+npm install pkg - install
+```
+
+
+Mit dem nächsten Befehl wird das Verzeichnis node_modules und die Datei packagelock.json erstellt:
+
+```cmd 
+npm install
+```
+### login.js 
+
+
+Der Javascript-Code verwaltet die Anwendung im Backend, stellt die Verbindung zum SQL-Container her und verwaltet die URL und Weiterleitungen. Man könnte ihn auch als den wichtigsten Teil der Anwendung bezeichnen.
+Der folgende Codeblock wird verwendet, um Module in den Code einzubinden, die mit npm installiert wurden.
+
+```javascript 
+ const mysql = require ( ’ mysql ’) ;
+ const express = require ( ’ express ’) ;
+ const session = require ( ’ express - session ’) ;
+ const path = require ( ’ path ’) ;
+
+ ....
+```
+Der folgende Code wird verwendet, um eine Verbindung mit der SQL-Container herzustellen:
+
+```javascript 
+....
+
+ const connection = mysql . createPool ({
+ connectionLimit : 10 ,
+ host : " mysqldb " ,
+ user : " root " ,
+ password : "123456" ,
+ database : " nodelogin __"
+ }) ;
+ ....
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/AbdelaliHafid/nodejs_docker_mysql.git
-git branch -M main
-git push -uf origin main
+
+Die Verbindungsdetails müssen den Anmeldedaten der Datenbank entsprechen. In den meisten lokalen Umgebungen ist der Standardbenutzername root.
+Express wird für die Webanwendung verwendet, die Pakete enthält, die für die serverseitige Webentwicklung unerlässlich sind, z. B. Sitzungen und die Bearbeitung von
+HTTP-Anfragen:
+
+```javascript 
+....
+
+ const app = express () ;
+
+ app . use ( session ({
+ secret : ’ secret ’ ,
+ resave : true ,
+ saveUninitialized : true
+ }) ) ;
+ app . use ( express . json () ) ;
+ app . use ( express . urlencoded ({ extended : true }) ) ;
+
+ ....
+
+
 ```
 
-## Integrate with your tools
+Sessions wird verwendet, um festzustellen, ob der Benutzer angemeldet ist oder nicht.
+Die Methoden json und urlencoded extrahieren die Formulardaten aus unserer Datei login.html.
+Die folgenden Zeilen sind wichtig, weil sie bedeuten, dass login.html, register.html und style.css im nächsten Schritt in den Verpackungsprozess in der Dockerfile aufgenommen werden.
 
-- [ ] [Set up project integrations](https://gitlab.com/AbdelaliHafid/nodejs_docker_mysql/-/settings/integrations)
+```javascript 
+.....
+const mysql = require ( mysql ) ;
+ const express = require ( express ) ;
+ const session = require ( express - session ) ;
+ const path = require ( path ) ;
 
-## Collaborate with your team
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+....
 
-## Test and Deploy
+ app . use ( express . static ( path . join (__ dirname , ’./ static / style . css ’) ) ) ;
+ app . use ( express . static ( path . join (__ dirname , ’/ register . html ’) ) ) ;
+ app . use ( express . static ( path . join (__ dirname , ’/ login . html ’) ) ) ;
 
-Use the built-in continuous integration in GitLab.
+ ....
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
 
-***
 
-# Editing this README
+```
+Im Dockerfile analysiert pkg während des Paketierungsprozesses die Quellen, erkennt die Aufrufe von require, durchsucht die Abhängigkeiten der App und schließt sie in die ausführbare Datei ein.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+###  Erstellung der Dockerfile
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Diese Dockerdatei enthält alle Befehle zur Erstellung die neuen Containers. Zunächst werden alle benötigten Dateien in den Container kopiert. Dann wird eine neue ausführbare Datei erstellt, die die Anwendung und alle Abhängigkeiten und externen Dateien enthält. Dieser Container lauscht auf Port 3000 und führt die ausführbare Datei aus,sobald er gestartet wird.
 
-## Name
-Choose a self-explaining name for your project.
+```Dockerfile 
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+ FROM node :18 - alpine 3.14 AS NO .1
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+ COPY . .
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+ RUN npm install
+ RUN npm install mysql
+ RUN npm install -- location = global pkg
+ RUN pkg login . js -t node 12 - linux - x 64
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+ FROM ubuntu : latest AS NO .2
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+ COPY -- from = NO .1 login ./
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+ EXPOSE 3000
 
-## License
-For open source projects, say how it is licensed.
+ ENTRYPOINT ["./ login "]
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+
+```
+In dieser Dockerdatei ist pkg das Werkzeug, das verwendet wird, um die App und alle Requirments und externen Dateien in eine Executable zu packen :
+
+```Dockerfile
+RUN pkg login . js -t node 12 - linux - x 64
+
+
+```
+Die angegebenen Einstellungen ( node12 und linux 64 ) sind die Spezifikationen des Rechners, auf dem die Anwendung ausgeführt werden soll, und können in dieser Zeile
+geändert werden.
+
+### Erstellung der .env Datei
+Zum Ausführen der Container kann nun der folgende Befehl verwendet werden:
+```.env
+ MYSQLDB _ USER = root
+ MYSQLDB _ ROOT _ PASSWORD =123456
+ MYSQLDB _ DATABASE = nodelogin
+ MYSQLDB _ LOCAL _ PORT =3306
+ MYSQLDB _ DOCKER _ PORT =3306
+
+ NODE _ LOCAL _ PORT =6868
+ NODE _ DOCKER _ PORT =8080
+
+
+```
+
+### Erstellung der docker-compose Datei
+
+
+Docker-Compose wird für die Verwaltung von Docker-Anwendungen mit mehreren Containern wie dieser verwendet. Diese YML-Datei erstellt einen brandneuen Container, indem sie den App-Container mit dem Dockerfile des Webs und einem neuen Kontinent verbindet, der aus den gegebenen Einstellungen innerhalb der Docker-Compose-Datei (mysqldb) erstellt wird.
+
+
+``` Dockerfile
+ version : "3.8"
+ services :
+ mysqldb :
+ image : mysql :5.7
+ restart : always
+ env _ file : ./. env
+ environment :
+ MYSQL _ ROOT _ PASSWORD : 123456
+ ports :
+ - $ MYSQLDB _ LOCAL _ PORT :$ MYSQLDB _ DOCKER _ PORT
+
+ web :
+ build : ./ webe
+ environment :
+ MYSQL _ USER : root
+ MYSQL _ PASSWORD : 123456
+ MYSQL _ HOST : mysqldb
+ ports :
+ - "3000:3000"
+ depends _ on :
+ - mysqldb
+ restart : on - failure
+ 
+```
+
+
+## Dockerisierung und Start
+
+### Docker installieren
+
+Um Docker zu installieren, sollte der folgende Code in der richtigen Reihenfolge ausgeführt werden :
+
+```
+sudo apt - get update
+sudo apt - get install \
+ca - certificates \
+curl \
+gnupg \
+lsb - release
+```
+
+
+```
+sudo mkdir -p / etc / apt / keyrings
+curl - fsSL https :// download . docker . com / linux / ubuntu / gpg |
+sudo gpg -- dearmor -o / etc / apt / keyrings / docker . gpg
+```
+
+
+```
+echo \
+" deb [ arch = $ ( dpkg -- print - architecture ) signed - by =/ etc / apt
+/ keyrings / docker . gpg ] https :// download . docker . com / linux
+/ ubuntu \
+$ ( lsb_release - cs ) stable " | sudo tee / etc / apt / sources .
+list . d / docker . list > / dev / null
+```
+
+
+```
+sudo apt - get update
+sudo apt - get install docker - ce docker - ce - cli containerd . io docker - compose - plugin
+```
+
+
+
+
+### Starten der App mit Docker
+
+Die Docker-Container können mit folgendem Befehl stratifiziert werden:
+
+```
+docker-compose up
+```
+Die Dienste können mit dem Befehl im Hintergrund ausgeführt werden:
+
+```
+docker - compose up -d
+```
+
+
+Die Ausgabe sollte nun wie folgt aussehen:
+
+![output](https://user-images.githubusercontent.com/59409455/196443857-381cfbe7-5183-4f9c-846a-f74177dc34c1.png)
+
+
+Wie in oben zu sehen ist, lauscht der Container auf Port 3000 und über die folgende URL: localhost:3000/ wird die Anwendung im Browser gestartet.
+Das Stoppen aller laufenden Container ist ebenfalls einfach mit einem einzigen Befehl möglich:
+
+
+```
+docker - compose down
+```
+
+Es ist möglich, die App nach dem Aktualisieren des Inhalts mit dem Befehl neu zu starten:
+
+```
+docker - compose up -- build
+```
+
+## Das Aussehen der Applikation
+
+Nachdem die Adresse http://localhost:3000/ im Browser aufgerufen wurde, ist das Anmeldeformular zu sehen, das wie folgt aussehen sollte:
+![register](https://user-images.githubusercontent.com/59409455/196444084-6bcab506-6427-4d6b-8e25-4881d06c16fc.png)
+
+Nach der Erstellung seines Kontos wird der Benutzer auf die Login-Seite weitergeleitet, wo er sich mit seinem Benutzernamen und Passwort anmelden kann.
+
+![login](https://user-images.githubusercontent.com/59409455/196444110-f25034f8-be4c-4cac-abe9-778b3c0f5bda.png)
+
+Dann wird der Benutzer zur Startseite weitergeleitet, wo er begrüßt wird :
+![home](https://user-images.githubusercontent.com/59409455/196444147-7c207210-7d1c-4e90-b8ff-23c0250ba8fc.png)
+
+
+
+## Sicherheitsmaßnahmen
+
+
+### Installierte Pakete gegen Angriffe
+
+* Helmet :
+Legt sicherheitsbezogene HTTP-Antwort-Header zum Schutz vor Cross-Site-ScriptingAngriffen und Cross-Site-Injections fest.
+
+*  XSS-Clean : 
+Sanitized Benutzereingaben aus dem POST-Anfragetext, der GET-Anfrage und den URL-Parametern und schützt vor Cross-Site-Scripting und XSS-Angriffen.
+
+* HPP :
+Legt die Array-Parameter in req.query und/oder req.body beiseite und wählt nur den letzten Parameterwert aus, um HTTP-Parameter-Pollution-Angriffe zu vermeiden.
+
+### Dockerisierung :
+
+Die Dockerisierung der Anwendung bietet eine zusätzliche Sicherheitsebene. Wenn Container voneinander isoliert sind, laufen die Anwendungen in ihrer eigenen, in sich geschlossenen Umgebung. Das bedeutet, dass selbst wenn die Sicherheit eines Containersge fährdet ist, die anderen Container auf demselben Host sicher bleiben. Container sind nicht nur voneinander isoliert, sondern auch vom Host-Betriebssystem und können nur in geringem Maße mit Rechenressourcen interagieren. All dies führt zu einer inhärent sichereren Art der Anwendungsbereitstellung. Wenn die Anwendung in einem DockerContainer ausgeführt wird, bedeutet dies, dass sie isoliert ist und nicht auf dem lokalen Rechner läuft, so dass der Quellcode nicht lokal zugänglich ist. Das bedeutet, dass die Angreifer versuchen sollten, über die Docker-Server darauf zuzugreifen. 
+
+
+### Obfuskation und Binär/Obfuskulation :
+
+Ein obfuskierter Code sieht unlesbar aus, aber wenn er ausgeführt wird, funktioniert er genau wie der Originalcode:
+```javascript
+const _0x472150 = _0x4816 ; function _0x1580 (){ const .....
+``` 
+Diese Technik wird verwendet, um den Quellcode zu verbergen, aber das Problem ist, dass er ausführbar ist und entschlüsselt und zurückentwickelt werden kann. Die Kombination von Codeverschleierung mit der Umwandlung der Nodejs-Anwendung in eine Binärdatei (Binärverschleierung) erschwert den Zugriff auf den Quellcode, da es möglich ist, eine Binärdatei zu disassemblieren und den Assembler-Quellcode zurückzubekommen, aber leider ist es mit genügend Zeit und Ressourcen und unter Verwendung der richtigen Tools immer noch möglich, den fragmentierten Code und den Quellcode zu erhalten. Aber insgesamt ist es durch die Verwendung von Code Obfuscation und das
+ aden der Nodejs-App als Binary in den Docker-Container schwierig und kostspielig, den Quellcode zu erhalten.
+ 
+ 
+ ##Ist der Quellcode der Anwendung einsehbar (wie einfach ist es, ihn zu erhalten)?
+
+ Wenn die Nodejs-Anwendung hochgeladen und in den Container gepackt wird, ist sie dann sicher? Die Antwort ist nein, die ausführbare Datei kann immer noch erlangt
+werden, denn egal wie sicher die Container auch sein mögen, sie sind immer noch nicht unbesiegbar. Nun, da der Angreifer die ausführbare Datei hat, kann er nicht mehr an den Quellcode gelangen, richtig? Die Antwort ist auch hier ein Nein, denn egal wie sicher er ist, er kann disassembliert und dekompiliert werden.
+ 
+ 
+ ### Dekompilierungs-/Disassemblierungstools 
+ 
+ Es gibt viele Tools, die dekompilieren, desassemblieren, skripten und mehr können. Zum Beispiel gibt es Hopper, IDA Pro und das bekannte Ghidra, das verwendet wird, um zu versuchen, den Quellcode der Nodejs-Anwendung zu erhalten und um zu zeigen, wie zugänglich der Quellcode ist.
+ Ghidra ist ein kostenloses und quelloffenes Reverse-Engineering-Tool, das von der National Security Agency der Vereinigten Staaten entwickelt wurde. Die Binärdateien
+wurden auf der RSA-Konferenz im März 2019 veröffentlicht.
+ 
+ 
+ ### Den Quellcode mit Ghidra zu erhalten 
+ 
+ Nach dem Hochladen der Exe-Datei in Ghidra und dem Disassemblieren und Dekompilieren zeigt das Tool  an:
+ ![ghidra](https://user-images.githubusercontent.com/59409455/196444208-09bade0f-9ff3-4de8-8d8e-f557d7838fc9.png)
+
+Nachdem das Reverse Ingeneering abgeschlossen ist, enthält das Gidra-Fenster eine Vielzahl von Unterfenstern, von denen jedes seine eigene Bedeutung und Verwendung
+hat. 
+Program Trees  enthält die Abschnitte des Programms, der Abschnitt Symbol Tree ist sehr nützlich, da er die Importe, Exporte und Funktionen enthält, die das
+Programm verwendet:
+![program](https://user-images.githubusercontent.com/59409455/196444273-8f5965a9-e1dd-4a19-934a-2235096f7977.png)
+
+Der Symbol Tree  enthält alle Funktionen des Programms. Wenn Ghidra das Programm importiert und anschließend analysiert, wird es versuchen, einigen der Funktionen auf der Grundlage der durchgeführten automatischen Analyse Namen zuzuweisen :
+![symbol](https://user-images.githubusercontent.com/59409455/196444337-7dd14540-2a59-4f4a-9029-69316a9390da.png)
+
+Imports enthält die Bibliotheken, die vom Programm importiert wurden. Wenn man auf eine DLL klicken, werden die importierten Funktionen angezeigt, die mit dieser Bibliothek verbunden sind.
+Es gibt auch eine Auflistung für Entry , das ist der Einstiegspunkt des Programms, und durch einen Doppelklick darauf wird das Hauptfenster Listing von Ghidra
+aktualisiert und zeigt den Assemblercode am Einstiegspunkt des Programms an :
+ ![listing](https://user-images.githubusercontent.com/59409455/196444390-7bb01354-0206-4e4e-89ac-00a55d8e06f4.png)
+
+ Das Decompile-Fenster  zeigt, wo Ghidra versucht hat, den Assembler-Code im Fenster Listing in C-Programmcode umzuwandeln. Auf diese Weise kann der Programmanalytiker sehen, wie der Code des Programms ausgesehen haben könnte, was bei der Analyse des Programms hilfreich ist :
+ 
+ ![Decompile](https://user-images.githubusercontent.com/59409455/196444472-a6d79f14-d04d-4cd6-9975-2754d3e46909.png)
+
+ 
+ ### Auslegung und Schlussfolgerung
+ 
+ Nach dem Reverse-Engineering des Programms zeigt ghidra den Assembler-Code des Programms und die Übersetzung oder die Umwandlung des Assembler-Codes in C-Code.
+Es zeigt auch, dass einige Libs wie https und node bereits vom Decompiler erkannt wurden. Die Zeit, die für die Analyse des Dekompilierens und Desassemblierens benötigt wird, ist groß, und die Assemblerzeilen sind ebenfalls groß. Man kann sagen, dass das Kompilieren der Nodejs-App in ein Paket mit all seinen Abhängigkeiten den Zugriff auf den Quellcode erheblich erschwert hat. Der Code ist in C, aber das bedeutet nicht, dass er nicht in Js übersetzt werden kann, was bedeutet, dass der Quellcode immer noch erhalten werden kann. Zusammenfassend lässt sich sagen, dass die Kompilierung und Dockerisierung den Quellcode nicht vollständig versteckt hat, sondern es den Angreifern nur erschwert hat, weil sie zuerst in den Container einbrechen müssen, um an die ExeDatei zu erhalten, und sie dann dekompilieren und desassemblieren müssen.
+
+
+
+## Fazit
+Der originale Quellcode kann von den Benutzern zunächst nicht eingesehen werden, da er obfuskiert und zu einer Binärdatei kompiliert wurde, kann aber dennoch zurückentwickelt werden. Es gibt viele Tools, mit denen die Binärdateien zurückentwickelt werden können (z. B. Hopper und Hex-Rays Decompiler), aber der Hauptgrund für die Verwendung von Obskuritätssicherheit besteht nicht darin, anderen den Zugriff auf die Datenbank oder den Quellcode unmöglich zu machen, sondern darin, ihnen diese Aufgabe so schwer wie möglich zu machen. Alles ist ein Opfer von Threads und Vulnerabilitäten, egal wie sicher es ist, und deshalb entwickelt sich die Technologie ständig weiter, um sicherere Umgebungen zu schaffen, um die Verwüstungen der Angreifer zu begrenzen.
+
+
